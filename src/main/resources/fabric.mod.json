@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "fishymap",
+  "version": "${version}",
+  "name": "FishyMap",
+  "description": "The mod that powers the FishyMap web map",
+  "authors": ["Some random nerds", "TheMysterys"],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/fishymap/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.themysterys.fishymap.FishymapClient"
+    ],
+    "main": [
+      "com.themysterys.fishymap.Fishymap"
+    ],
+    "modmenu": [
+      "com.themysterys.fishymap.modules.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "fishymap.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

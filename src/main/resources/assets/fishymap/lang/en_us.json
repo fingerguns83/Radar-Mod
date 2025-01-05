@@ -1,0 +1,7 @@
+{
+  "debug.fishymod.help": "F3 + F = Open FishyMap settings menu",
+  "fishymap.config.title": "FishyMap Options",
+  "fishymap.config.shareUser": "Share Username",
+  "fishymap.config.shareUser.tooltip": "Shares your username on the web map"
+
+}

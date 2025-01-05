@@ -1,0 +1,42 @@
+package com.themysterys.fishymap.config;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.themysterys.fishymap.utils.Utils;
+import net.fabricmc.loader.api.FabricLoader;
+
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class FishymapConfig {
+
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+
+    public boolean shareUser = false;
+
+    public static FishymapConfig load() {
+        var file = getConfigFile();
+        if (Files.exists(file)) {
+            try (var reader = new FileReader(file.toFile())) {
+                return GSON.fromJson(reader, FishymapConfig.class);
+            } catch (Exception x) {
+                Utils.error("Failed to load config file: " + x.getMessage());
+            }
+        }
+        return new FishymapConfig();
+    }
+
+    public void save() {
+        try {
+            Files.writeString(getConfigFile(), GSON.toJson(this));
+        } catch (Exception x) {
+            Utils.error("Failed to save config file: " + x.getMessage());
+        }
+    }
+
+    public static Path getConfigFile() {
+        return FabricLoader.getInstance().getConfigDir().resolve("fishymap.json");
+    }
+}
