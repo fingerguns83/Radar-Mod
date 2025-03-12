@@ -125,16 +125,17 @@ public class FishymapClient implements ClientModInitializer {
             int fishingSpotX = textDisplay.getBlockX();
             int fishingSpotZ = textDisplay.getBlockZ();
 
-            String perks = Arrays.stream(text.split("\n"))
+            List<String> perks = Arrays.stream(text.split("\n"))
                     .filter(line -> line.contains("+"))
                     .map(line -> "+" + line.split("\\+")[1])
-                    .collect(Collectors.joining(", "));
+                    .toList();
             if (!perks.isEmpty()) {
                 Utils.log("Fishing spot X/Z: " + fishingSpotX + "/" + fishingSpotZ);
                 Utils.log("Fishing spot perks: " + perks);
                 currentFishingSpot = textDisplay;
 
                 // TODO: Code that updates the map
+                FishingSpot spot = new FishingSpot(fishingSpotX+"/"+fishingSpotZ, perks);
 
                 return;
             }
@@ -158,6 +159,10 @@ public class FishymapClient implements ClientModInitializer {
             resetFishingSpot();
         }
         currentIsland = island;
+    }
+
+    private void upload(FishingSpot spot) {
+
     }
 
     public static FishymapClient getInstance() {
