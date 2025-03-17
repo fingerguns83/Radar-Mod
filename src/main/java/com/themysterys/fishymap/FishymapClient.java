@@ -2,6 +2,7 @@ package com.themysterys.fishymap;
 
 import com.themysterys.fishymap.modules.NoxesiumIntegration;
 import com.themysterys.fishymap.utils.AuthUtils;
+import com.themysterys.fishymap.utils.FishingSpot;
 import com.themysterys.fishymap.utils.Utils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -18,7 +19,6 @@ import net.minecraft.util.math.Box;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FishymapClient implements ClientModInitializer {
 
@@ -27,7 +27,7 @@ public class FishymapClient implements ClientModInitializer {
 
     private boolean isOnIsland = false;
     private boolean isFishing = false;
-    private DisplayEntity.TextDisplayEntity currentFishingSpot = null;
+    private FishingSpot currentFishingSpot = null;
 
     private String currentIsland = null;
 
@@ -114,9 +114,13 @@ public class FishymapClient implements ClientModInitializer {
 
         if (!entities.isEmpty()) {
             DisplayEntity.TextDisplayEntity textDisplay = (DisplayEntity.TextDisplayEntity) entities.getFirst();
-            if (currentFishingSpot != null && currentFishingSpot.equals(textDisplay)) {
+            if (currentFishingSpot != null && currentFishingSpot.getEntity().equals(textDisplay)) {
                 Utils.log("Already found this fishing spot.");
                 return;
+            }
+            if (currentFishingSpot != null) {
+                System.out.println("Fishing at a new spot!");
+                Utils.sendRequest("delete-spot", currentFishingSpot.deleteFormat());
             }
             String text = textDisplay.getText().asTruncatedString(Integer.MAX_VALUE);
 
@@ -130,10 +134,10 @@ public class FishymapClient implements ClientModInitializer {
             if (!perks.isEmpty()) {
                 Utils.log("Fishing spot X/Z: " + fishingSpotX + "/" + fishingSpotZ);
                 Utils.log("Fishing spot perks: " + perks);
-                currentFishingSpot = textDisplay;
 
-                // TODO: Code that updates the map
-                FishingSpot spot = new FishingSpot(fishingSpotX+"/"+fishingSpotZ, perks);
+                currentFishingSpot = new FishingSpot(fishingSpotX+"/"+fishingSpotZ, perks, currentIsland, textDisplay);
+
+                Utils.sendRequest("spots", currentFishingSpot.format());
 
                 return;
             }
@@ -143,12 +147,13 @@ public class FishymapClient implements ClientModInitializer {
     }
 
     private void resetFishingSpot() {
-        currentFishingSpot = null;
+
+        if (currentFishingSpot == null) return;
 
         // Post request to website
-        Utils.sendRequest("removespot", "");
+        Utils.sendRequest("delete-spot", currentFishingSpot.deleteFormat());
 
-
+        currentFishingSpot = null;
     }
 
     public void setIsland(String island) {
@@ -158,10 +163,6 @@ public class FishymapClient implements ClientModInitializer {
             resetFishingSpot();
         }
         currentIsland = island;
-    }
-
-    private void upload(FishingSpot spot) {
-
     }
 
     public static FishymapClient getInstance() {

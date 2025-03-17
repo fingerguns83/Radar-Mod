@@ -10,13 +10,13 @@ import net.minecraft.client.network.ServerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Utils {
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
@@ -70,17 +70,27 @@ public class Utils {
     }
 
     public static void sendRequest(String path, String data) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(Fishymap.getURL() + path))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(data, StandardCharsets.UTF_8))
-                    .build();
 
-            client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Sending POST request to: " + Fishymap.getURL()+ "/" + path + " with following data: \n" + data);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(Fishymap.getURL()+ "/" + path))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(data, StandardCharsets.UTF_8))
+                .build();
+
+        // Using sendAsync to avoid blocking the main thread
+        CompletableFuture<HttpResponse<String>> futureResponse = client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+
+        // You can optionally handle the response here
+        futureResponse.thenAccept(response -> {
+            // Handle the response (for example, logging or processing the body)
+            System.out.println("Response received: " + response.body());
+        }).exceptionally(ex -> {
+            // Handle any exceptions (for example, logging)
+            ex.printStackTrace();
+            return null;
+        });
     }
 }
