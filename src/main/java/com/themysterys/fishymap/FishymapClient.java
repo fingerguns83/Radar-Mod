@@ -24,16 +24,16 @@ public class FishymapClient implements ClientModInitializer {
 
     private static FishymapClient instance;
     private final String sharedSecret = AuthUtils.generateSharedSecret();
-
+    private final int maxWaitTime = 5 * 20; // 5 seconds
     private boolean isOnIsland = false;
     private boolean isFishing = false;
     private FishingSpot currentFishingSpot = null;
-
     private String currentIsland = null;
-
     private int waitTime = 0;
-    private final int maxWaitTime = 5 * 20; // 5 seconds
 
+    public static FishymapClient getInstance() {
+        return instance;
+    }
 
     @Override
     public void onInitializeClient() {
@@ -41,6 +41,7 @@ public class FishymapClient implements ClientModInitializer {
         new NoxesiumIntegration().init();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!Fishymap.getInstance().getConfig().enabled) return;
             if (!Utils.isOnIsland()) return;
             if (currentIsland == null) return;
 
@@ -52,7 +53,7 @@ public class FishymapClient implements ClientModInitializer {
             isOnIsland = true;
 
             if (Fishymap.getInstance().isNewInstallation) {
-                Utils.sendMiniMessage("Thank you for installing FishyMap. To access the configuration menu, press <bold>F3 + F</bold>. Happy Fishing", true, null);
+                Utils.sendMiniMessage("Thank you for installing FishyMap. Uploading spots is <yellow>disabled by default</yellow>. To access the configuration menu, press <bold><yellow>F3 + F</yellow></bold>. Happy Fishing", true, null);
                 Fishymap.getInstance().isNewInstallation = false;
                 Fishymap.getInstance().getConfig().save();
             }
@@ -124,15 +125,12 @@ public class FishymapClient implements ClientModInitializer {
             int fishingSpotX = textDisplay.getBlockX();
             int fishingSpotZ = textDisplay.getBlockZ();
 
-            List<String> perks = Arrays.stream(text.split("\n"))
-                    .filter(line -> line.contains("+"))
-                    .map(line -> "+" + line.split("\\+")[1])
-                    .toList();
+            List<String> perks = Arrays.stream(text.split("\n")).filter(line -> line.contains("+")).map(line -> "+" + line.split("\\+")[1]).toList();
             if (!perks.isEmpty()) {
                 Utils.log("Fishing spot X/Z: " + fishingSpotX + "/" + fishingSpotZ);
                 Utils.log("Fishing spot perks: " + perks);
 
-                currentFishingSpot = new FishingSpot(fishingSpotX+"/"+fishingSpotZ, perks, currentIsland, textDisplay);
+                currentFishingSpot = new FishingSpot(fishingSpotX + "/" + fishingSpotZ, perks, currentIsland, textDisplay);
 
                 Utils.sendRequest("spots", currentFishingSpot.format());
 
@@ -156,9 +154,5 @@ public class FishymapClient implements ClientModInitializer {
             resetFishingSpot();
         }
         currentIsland = island;
-    }
-
-    public static FishymapClient getInstance() {
-        return instance;
     }
 }

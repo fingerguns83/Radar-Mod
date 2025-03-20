@@ -16,6 +16,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class Utils {
@@ -70,9 +71,6 @@ public class Utils {
     }
 
     public static void sendRequest(String path, String data) {
-
-        System.out.println("Sending POST request to: " + Fishymap.getURL()+ "/" + path + " with following data: \n" + data);
-
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(Fishymap.getURL()+ "/" + path))
@@ -86,7 +84,18 @@ public class Utils {
         // You can optionally handle the response here
         futureResponse.thenAccept(response -> {
             // Handle the response (for example, logging or processing the body)
-            System.out.println("Response received: " + response.body());
+            if (response.statusCode() != 200 || response.statusCode() != 201) {
+                System.out.println("Received status code: " + response.statusCode());
+                System.out.println("Response received:" + response.body());
+            }
+
+            if (Objects.equals(path, "spots")) {
+                if (response.statusCode() == 201) {
+                    Utils.sendMiniMessage("<green>Spot successfully added to map", true, null);
+                } else {
+                    Utils.sendMiniMessage("<yellow>Spot already on the map", true, null);
+                }
+            }
         }).exceptionally(ex -> {
             // Handle any exceptions (for example, logging)
             ex.printStackTrace();

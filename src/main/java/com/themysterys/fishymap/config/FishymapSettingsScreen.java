@@ -25,6 +25,14 @@ public class FishymapSettingsScreen extends Screen {
         GridWidget gridWidget = new GridWidget();
         gridWidget.getMainPositioner().marginX(4).marginBottom(4).alignHorizontalCenter();
         GridWidget.Adder adder = gridWidget.createAdder(2);
+        adder.add(CyclingButtonWidget.onOffBuilder(config.enabled)
+                .tooltip(value -> Tooltip.of(Text.translatable("fishymap.config.enabled.tooltip")))
+                .build(
+                        Text.translatable("fishymap.config.enabled"), (button, value) -> {
+                            config.enabled = !value;
+                            config.save();
+                        }
+                ));
         adder.add(CyclingButtonWidget.onOffBuilder(config.shareUser)
                 .tooltip(value -> Tooltip.of(Text.translatable("fishymap.config.shareUser.tooltip")))
                 .build(
@@ -33,6 +41,7 @@ public class FishymapSettingsScreen extends Screen {
                     config.save();
                 }
         ));
+
         this.layout.addBody(gridWidget);
         this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, button -> this.close()).width(200).build());
         this.layout.forEachChild(element -> {

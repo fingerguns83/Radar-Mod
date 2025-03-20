@@ -13,7 +13,7 @@ public class FishymapConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-
+    public boolean enabled = false;
     public boolean shareUser = false;
 
     public static FishymapConfig load() {
