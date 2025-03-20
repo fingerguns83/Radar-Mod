@@ -12,7 +12,7 @@ public class Fishymap implements ModInitializer {
     public boolean isNewInstallation = !Files.exists(FabricLoader.getInstance().getConfigDir().resolve("fishymap.json"));
     private final FishymapConfig config = FishymapConfig.load();
 
-    private static final String url = "http://localhost:8080";
+    private static final String url = "https://fishyapi.themysterys.com";
 
     private static Fishymap instance;
 
