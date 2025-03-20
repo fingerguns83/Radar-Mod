@@ -118,10 +118,7 @@ public class FishymapClient implements ClientModInitializer {
                 Utils.log("Already found this fishing spot.");
                 return;
             }
-            if (currentFishingSpot != null) {
-                System.out.println("Fishing at a new spot!");
-                Utils.sendRequest("delete-spot", currentFishingSpot.deleteFormat());
-            }
+
             String text = textDisplay.getText().asTruncatedString(Integer.MAX_VALUE);
 
             int fishingSpotX = textDisplay.getBlockX();
@@ -147,11 +144,7 @@ public class FishymapClient implements ClientModInitializer {
     }
 
     private void resetFishingSpot() {
-
         if (currentFishingSpot == null) return;
-
-        // Post request to website
-        Utils.sendRequest("delete-spot", currentFishingSpot.deleteFormat());
 
         currentFishingSpot = null;
     }

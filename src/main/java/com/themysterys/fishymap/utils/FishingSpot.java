@@ -20,24 +20,13 @@ public class FishingSpot {
         this.entity = entity;
     }
 
-    public String getCords() {
-        return cords;
-    }
-
-    public List<String> getPerks() {
-        return perks;
-    }
-
-    public String getIsland() {
-        return island;
-    }
-
     public DisplayEntity.TextDisplayEntity getEntity() {
         return entity;
     }
 
     public String format() {
         UUID uuid = MinecraftClient.getInstance().player.getUuid();
+        String username = MinecraftClient.getInstance().player.getName().getString();
         Boolean shareUser = Fishymap.getInstance().getConfig().shareUser;
 
         StringBuilder json = new StringBuilder();
@@ -56,24 +45,11 @@ public class FishingSpot {
         json.append("\"island\": \"").append(island).append("\",\n");
 
         json.append("\"uuid\": \"").append(uuid).append("\",\n");
+        json.append("\"username\": \"").append(username).append("\",\n");
         json.append("\"shareUser\": ").append(shareUser).append("\n");
 
         json.append("}");
 
         return json.toString();
     }
-
-    public String deleteFormat() {
-        UUID uuid = MinecraftClient.getInstance().player.getUuid();
-
-        StringBuilder json = new StringBuilder();
-        json.append("{\n");
-        json.append("\"cords\": \"").append(cords).append("\",\n");
-        json.append("\"island\": \"").append(island).append("\",\n");
-        json.append("\"uuid\": \"").append(uuid).append("\"\n");
-        json.append("}");
-
-        return json.toString();
-    }
-
 }
