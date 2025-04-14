@@ -1,5 +1,6 @@
 package com.themysterys.radar;
 
+import com.themysterys.radar.config.RadarSettingsScreen;
 import com.themysterys.radar.modules.NoxesiumIntegration;
 import com.themysterys.radar.utils.AuthUtils;
 import com.themysterys.radar.utils.FishingSpot;
@@ -25,7 +26,6 @@ public class RadarClient implements ClientModInitializer {
 
     private static RadarClient instance;
     private String sharedSecret;
-    private final int maxWaitTime = 5 * 20; // 5 seconds
 
     private boolean isOnIsland = false;
     private boolean isFishing = false;
@@ -63,7 +63,7 @@ public class RadarClient implements ClientModInitializer {
                 throw new IllegalStateException("Player is null. How are you joining a server...");
             }
 
-            Utils.sendRequest("register", "{\"uuid\":\""+player.getUuid()+"\"}");
+            Utils.sendRequest("register", "{\"uuid\":\"" + player.getUuid() + "\"}");
 
             if (Radar.getInstance().isNewInstallation) {
                 Utils.sendMiniMessage("Thank you for installing Radar. Sharing your username is <yellow>disabled by default</yellow> and can be changed in the configuration menu. To access the configuration menu, press <bold><yellow>F3 + F</yellow></bold>. Happy Fishing", true, null);
@@ -85,6 +85,17 @@ public class RadarClient implements ClientModInitializer {
             Utils.sendRequest("unregister", "");
         });
 
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("radar").then(ClientCommandManager.literal("settings").executes(context -> {
+            MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new RadarSettingsScreen((null))));
+            return 1;
+        })).then(ClientCommandManager.literal("colors").executes(context -> {
+            Utils.sendMiniMessage("Radar particle colors:\n<green>Green</green>: Successfully added to map\n<blue>Blue</blue>: Spot already added to map\n<#ff7f00>Orange</#ff7f00>: Unauthorized. Rejoin server to reauthenticate\n<red>Red</red>: There was an error. Please try again", true, null);
+            return 1;
+        })).executes(context -> {
+            Utils.sendMiniMessage("Available commands: <yellow>colors</yellow>, <yellow>settings</yellow>", true, null);
+            return 1;
+        })));
+
         Utils.log("Radar has been initialized.");
     }
 
@@ -104,6 +115,8 @@ public class RadarClient implements ClientModInitializer {
             if (currentFishingSpot == null) {
                 return;
             }
+            // 5 seconds
+            int maxWaitTime = 5 * 20;
             if (waitTime == maxWaitTime) {
                 resetFishingSpot();
                 return;

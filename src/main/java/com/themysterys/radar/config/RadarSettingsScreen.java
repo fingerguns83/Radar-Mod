@@ -1,11 +1,14 @@
 package com.themysterys.radar.config;
 
 import com.themysterys.radar.Radar;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+
+import java.util.UUID;
 
 public class RadarSettingsScreen extends Screen {
 
@@ -25,28 +28,24 @@ public class RadarSettingsScreen extends Screen {
         GridWidget gridWidget = new GridWidget();
         gridWidget.getMainPositioner().marginX(4).marginBottom(4).alignHorizontalCenter();
         GridWidget.Adder adder = gridWidget.createAdder(2);
-        adder.add(CyclingButtonWidget.onOffBuilder(config.enabled)
-                .tooltip(value -> Tooltip.of(Text.translatable("radar.config.enabled.tooltip")))
-                .build(
-                        Text.translatable("radar.config.enabled"), (button, value) -> {
-                            config.enabled = value;
-                            config.save();
-                        }
-                ));
-        adder.add(CyclingButtonWidget.onOffBuilder(config.shareUser)
-                .tooltip(value -> Tooltip.of(Text.translatable("radar.config.shareUser.tooltip")))
-                .build(
-                Text.translatable("radar.config.shareUser"), (button, value) -> {
-                    config.shareUser = value;
-                    config.save();
-                }
-        ));
+        adder.add(CyclingButtonWidget.onOffBuilder(config.enabled).tooltip(value -> Tooltip.of(Text.translatable("radar.config.enabled.tooltip"))).build(Text.translatable("radar.config.enabled"), (button, value) -> {
+            config.enabled = value;
+            config.save();
+        }));
+        adder.add(CyclingButtonWidget.onOffBuilder(config.shareUser).tooltip(value -> Tooltip.of(Text.translatable("radar.config.shareUser.tooltip"))).build(Text.translatable("radar.config.shareUser"), (button, value) -> {
+            config.shareUser = value;
+            config.save();
+        }));
+
+        boolean isTheMysterys = MinecraftClient.getInstance().uuidEquals(UUID.fromString("4e832e0d-14b6-4f8f-ace2-280a9bf9dd98"));
+
+        if (isTheMysterys) {
+            adder.add(CyclingButtonWidget.onOffBuilder(Radar.getInstance().getDevMode()).tooltip(value -> Tooltip.of(Text.translatable("radar.config.devMode.tooltip"))).build(Text.translatable("radar.config.devMode"), ((button, value) -> Radar.getInstance().toggleDevMode())));
+        }
 
         this.layout.addBody(gridWidget);
         this.layout.addFooter(ButtonWidget.builder(ScreenTexts.DONE, button -> this.close()).width(200).build());
-        this.layout.forEachChild(element -> {
-            ClickableWidget var10000 = this.addDrawableChild(element);
-        });
+        this.layout.forEachChild(this::addDrawableChild);
         this.initTabNavigation();
     }
 

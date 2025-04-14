@@ -12,7 +12,7 @@ public class Radar implements ModInitializer {
     public boolean isNewInstallation = !Files.exists(FabricLoader.getInstance().getConfigDir().resolve("radar.json"));
     private final RadarConfig config = RadarConfig.load();
 
-    private static final String url = "http://localhost:8879"; //"https://fishyapi.themysterys.com";
+    private boolean devMode = false;
 
     private static Radar instance;
 
@@ -30,7 +30,19 @@ public class Radar implements ModInitializer {
         return instance;
     }
 
+    public void toggleDevMode() {
+        devMode = !devMode;
+    }
+
+    public boolean getDevMode() {
+        return devMode;
+    }
+
     public static String getURL() {
-        return url;
+        if (getInstance().devMode) {
+            return "http://localhost:8879";
+        } else {
+            return "https://fishyapi.themysterys.com";
+        }
     }
 }
