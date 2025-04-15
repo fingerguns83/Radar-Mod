@@ -16,6 +16,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 
@@ -66,7 +67,14 @@ public class RadarClient implements ClientModInitializer {
             Utils.sendRequest("register", "{\"uuid\":\"" + player.getUuid() + "\"}");
 
             if (Radar.getInstance().isNewInstallation) {
-                Utils.sendMiniMessage("Thank you for installing Radar. Sharing your username is <yellow>disabled by default</yellow> and can be changed in the configuration menu. To access the configuration menu, press <bold><yellow>F3 + F</yellow></bold>. Happy Fishing", true, null);
+                String[] message = new String[] {
+                        "Thank you for installing Radar.",
+                        "Sharing your username is <yellow>disabled by default</yellow> and can be",
+                        "changed in the configuration menu.",
+                        "To access the configuration menu, press <bold><yellow>F3 + F</yellow></bold>.",
+                        "Happy Fishing"
+                };
+                Utils.sendMiniMessage(String.join("\n", message), true, null);
                 Radar.getInstance().isNewInstallation = false;
                 Radar.getInstance().getConfig().save();
             }
@@ -89,10 +97,20 @@ public class RadarClient implements ClientModInitializer {
             MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new RadarSettingsScreen((null))));
             return 1;
         })).then(ClientCommandManager.literal("colors").executes(context -> {
-            Utils.sendMiniMessage("Radar particle colors:\n<green>Green</green>: Successfully added to map\n<blue>Blue</blue>: Spot already added to map\n<#ff7f00>Orange</#ff7f00>: Unauthorized. Rejoin server to reauthenticate\n<red>Red</red>: There was an error. Please try again", true, null);
+            String[] message = new String[] {
+                    "Radar particle colors:",
+                    "<green>Green</green>: Successfully added to map",
+                    "<blue>Blue</blue>: Spot already added to map",
+                    "<#ff7f00>Orange</#ff7f00>: Unauthorized. Rejoin server to reauthenticate",
+                    "<red>Red</red>: There was an error. Please try again"
+            };
+            Utils.sendMiniMessage(String.join("\n",message), true, null);
+            return 1;
+        })).then(ClientCommandManager.literal("map").executes(context -> {
+            MinecraftClient.getInstance().send(() -> Util.getOperatingSystem().open("https://radar.themysterys.com/"));
             return 1;
         })).executes(context -> {
-            Utils.sendMiniMessage("Available commands: <yellow>colors</yellow>, <yellow>settings</yellow>", true, null);
+            Utils.sendMiniMessage("Available commands: <yellow>colors</yellow>, <yellow>settings</yellow>, <yellow>map</yellow>", true, null);
             return 1;
         })));
 
