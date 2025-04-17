@@ -1,6 +1,7 @@
 package com.themysterys.radar;
 
 import com.themysterys.radar.config.RadarSettingsScreen;
+import com.themysterys.radar.modules.AutoRod;
 import com.themysterys.radar.modules.NoxesiumIntegration;
 import com.themysterys.radar.utils.AuthUtils;
 import com.themysterys.radar.utils.FishingSpot;
@@ -108,6 +109,10 @@ public class RadarClient implements ClientModInitializer {
             return 1;
         })).then(ClientCommandManager.literal("map").executes(context -> {
             MinecraftClient.getInstance().send(() -> Util.getOperatingSystem().open("https://radar.themysterys.com/"));
+            return 1;
+        })).then(ClientCommandManager.literal("autorod").executes(context -> {
+            if (!isOnIsland) return 1;
+            AutoRod.sendMessage();
             return 1;
         })).executes(context -> {
             Utils.sendMiniMessage("Available commands: <yellow>colors</yellow>, <yellow>settings</yellow>, <yellow>map</yellow>", true, null);
