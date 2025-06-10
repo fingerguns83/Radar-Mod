@@ -12,9 +12,12 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -68,14 +71,23 @@ public class RadarClient implements ClientModInitializer {
             Utils.sendRequest("register", "{\"uuid\":\"" + player.getUUID() + "\"}");
 
             if (Radar.getInstance().isNewInstallation) {
-                String[] message = new String[] {
-                        "Thank you for installing Radar.",
-                        "Sharing your username is <yellow>disabled by default</yellow> and can be",
-                        "changed in the configuration menu.",
-                        "To access the configuration menu, press <bold><yellow>F3 + F</yellow></bold>.",
-                        "Happy Fishing"
+                MutableComponent[] components = new MutableComponent[] {
+                        Component.literal("Thank you for installing Radar."),
+                        Component.literal("Sharing your username is ").append(Component.literal("disabled by default").withColor(16777045)).append("and can be"),
+                        Component.literal("changed in the configuration menu."),
+                        Component.literal("To access the configuration menu, press ").append(Component.literal("F3 + F").withStyle(ChatFormatting.BOLD,ChatFormatting.YELLOW)).append("."),
+                        Component.literal("Happy Fishing")
                 };
-                Utils.sendMiniMessage(String.join("\n", message), true, null);
+                MutableComponent result = null;
+                for (MutableComponent component : components) {
+                    if (result == null) {
+                        result = component;
+                    } else{
+                        result.append("\n").append(component);
+                    }
+                }
+
+                Utils.sendMessage(result, true);
                 Radar.getInstance().isNewInstallation = false;
                 Radar.getInstance().getConfig().save();
             }
@@ -98,14 +110,22 @@ public class RadarClient implements ClientModInitializer {
             Minecraft.getInstance().schedule(() -> Minecraft.getInstance().setScreen(new RadarSettingsScreen((null))));
             return 1;
         })).then(ClientCommandManager.literal("colors").executes(context -> {
-            String[] message = new String[] {
-                    "Radar particle colors:",
-                    "<green>Green</green>: Successfully added to map",
-                    "<blue>Blue</blue>: Spot already added to map",
-                    "<#ff7f00>Orange</#ff7f00>: Unauthorized. Rejoin server to reauthenticate",
-                    "<red>Red</red>: There was an error. Please try again"
+            MutableComponent[] components = new MutableComponent[] {
+                    Component.literal("Radar particle colors:"),
+                    Component.literal("Green").withStyle(ChatFormatting.GREEN).append(Component.literal(": Successfully added to map").withStyle(ChatFormatting.WHITE)),
+                    Component.literal("Blue").withStyle(ChatFormatting.BLUE).append(Component.literal(": Spot already added to map").withStyle(ChatFormatting.WHITE)),
+                    Component.literal("Orange").withColor(16744192).append(Component.literal(": Unauthorized. Rejoin server to reauthenticate").withStyle(ChatFormatting.WHITE)),
+                    Component.literal("Red").withStyle(ChatFormatting.RED).append(Component.literal(": There was an error. Please try again").withStyle(ChatFormatting.WHITE))
             };
-            Utils.sendMiniMessage(String.join("\n",message), true, null);
+            MutableComponent result = null;
+            for (MutableComponent component : components) {
+                if (result == null) {
+                    result = component;
+                } else{
+                    result.append("\n").append(component);
+                }
+            }
+            Utils.sendMessage(result, true);
             return 1;
         })).then(ClientCommandManager.literal("map").executes(context -> {
             Minecraft.getInstance().schedule(() -> Util.getPlatform().openUri("https://radar.themysterys.com/"));
@@ -115,7 +135,14 @@ public class RadarClient implements ClientModInitializer {
             AutoRod.sendMessage();
             return 1;
         })).executes(context -> {
-            Utils.sendMiniMessage("Available commands: <yellow>colors</yellow>, <yellow>settings</yellow>, <yellow>map</yellow>", true, null);
+            Utils.sendMessage(
+                    Component.literal("Available commands: ")
+                            .append(Component.literal("colors").withStyle(ChatFormatting.YELLOW))
+                            .append(", ")
+                            .append(Component.literal("settings").withStyle(ChatFormatting.YELLOW))
+                            .append(", ")
+                            .append(Component.literal("map").withStyle(ChatFormatting.YELLOW)),
+                    true);
             return 1;
         })));
 

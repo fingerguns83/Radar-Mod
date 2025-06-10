@@ -2,16 +2,17 @@ package com.themysterys.radar.utils;
 
 import com.themysterys.radar.Radar;
 import com.themysterys.radar.RadarClient;
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -28,9 +29,18 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class Utils {
-    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
     private static final Logger logger = LoggerFactory.getLogger("Radar");
     private static final List<Integer> allowedStatusCodes = List.of(200, 201, 400, 401);
+
+    public static Style mccFont() {
+        return Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("mcc","icon"));
+    }
+
+    private static MutableComponent getPrefix() {
+        return Component.literal("[")
+                .append(Component.literal("Radar").withColor(TextColor.parseColor("#006eff").getOrThrow().getValue()))
+                .append("]: ");
+    }
 
     public static void log(String message) {
         logger.info("[Radar] {}", message);
@@ -40,26 +50,21 @@ public class Utils {
         logger.error("[Radar] {}", message);
     }
 
-    public static void sendMiniMessage(String message, boolean prefix, TagResolver replacements) {
+    public static void sendMessage(Component message, boolean prefix) {
         Player player = Minecraft.getInstance().player;
 
         if (player == null) {
             return;
         }
+        Component component;
 
         if (prefix) {
-            message = "[<gradient:#00c8ff:#006eff>Radar</gradient>]: " + message;
-        }
-        Component parsed;
-        if (replacements != null) {
-            parsed = miniMessage.deserialize(message, replacements);
+            component = getPrefix().append(message);
         } else {
-            parsed = miniMessage.deserialize(message);
+            component = message;
         }
 
-        Audience client = MinecraftClientAudiences.of().audience();
-
-        client.sendMessage(parsed);
+        player.displayClientMessage(component, false);
     }
 
     public static Boolean isOnIsland() {
@@ -79,7 +84,8 @@ public class Utils {
 
     public static void spawnPartials(MapStatus status, int count) {
         if (Minecraft.getInstance().player == null) return;
-        FishingHook bobber = Minecraft.getInstance().player.fishing;
+        LocalPlayer player = Minecraft.getInstance().player;
+        FishingHook bobber = player.fishing;
 
         if (bobber == null) return;
 
@@ -88,11 +94,12 @@ public class Utils {
         switch (status) {
             case SUCCESS -> {
                 particleEffect = new DustParticleOptions(ARGB.color(0, 255, 0), 1);
-                Audience client = MinecraftClientAudiences.of().audience();
-                Sound sound = Sound.sound(Key.key("entity.arrow.hit_player"), Sound.Source.MASTER,1,1);
-                client.playSound(sound);
+                player.playNotifySound(SoundEvents.ARROW_HIT_PLAYER, SoundSource.MASTER, 1, 1);
             }
-            case EXISTS -> particleEffect = new DustParticleOptions(ARGB.color(0, 0, 255), 1);
+            case EXISTS -> {
+                particleEffect = new DustParticleOptions(ARGB.color(0, 0, 255), 1);
+                player.playNotifySound(SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.MASTER, 1, 0.5f);
+            }
             case UNAUTHORISED -> particleEffect = new DustParticleOptions(ARGB.colorFromFloat(1, 1, 0.5f, 0), 1);
             case FAILED -> particleEffect = new DustParticleOptions(ARGB.color(255, 0, 0), 1);
             case null, default -> {

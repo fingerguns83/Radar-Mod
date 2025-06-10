@@ -57,7 +57,6 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
-    modImplementation(include("net.kyori:adventure-platform-fabric:${project.property("adventure_version")}")!!)
 
     modApi("com.terraformersmc:modmenu:12.0.0")
     modApi("com.noxcrew.noxesium:fabric:${project.property("noxesium_version")}")
