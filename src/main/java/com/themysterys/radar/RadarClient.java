@@ -73,7 +73,7 @@ public class RadarClient implements ClientModInitializer {
             if (Radar.getInstance().isNewInstallation) {
                 MutableComponent[] components = new MutableComponent[] {
                         Component.literal("Thank you for installing Radar."),
-                        Component.literal("Sharing your username is ").append(Component.literal("disabled by default").withColor(16777045)).append("and can be"),
+                        Component.literal("Sharing your username is ").append(Component.literal("disabled by default ").withColor(16777045)).append("and can be"),
                         Component.literal("changed in the configuration menu."),
                         Component.literal("To access the configuration menu, press ").append(Component.literal("F3 + F").withStyle(ChatFormatting.BOLD,ChatFormatting.YELLOW)).append("."),
                         Component.literal("Happy Fishing")

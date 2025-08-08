@@ -18,10 +18,10 @@ import org.spongepowered.asm.mixin.injection.At;
 public class CustomDebugHotkeysMixin {
 
 
-    @WrapOperation(method = "handleDebugKeys", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;addMessage(Lnet/minecraft/network/chat/Component;)V"))
+    @WrapOperation(method = "showDebugChat", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;addMessage(Lnet/minecraft/network/chat/Component;)V"))
     public void addRadarHelpMessage(ChatComponent instance, Component message, Operation<Void> original) {
         if (message.getContents() instanceof TranslatableContents translatableContents) {
-            if (translatableContents.getKey().equals("debug.pause.help")) {
+            if (translatableContents.getKey().equals("debug.chunk_boundaries.help")) {
                 instance.addMessage(Component.translatable("debug.radar.help"));
             }
         }
