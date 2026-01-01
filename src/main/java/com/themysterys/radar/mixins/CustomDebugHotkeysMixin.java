@@ -7,7 +7,6 @@ import com.themysterys.radar.config.RadarSettingsScreen;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,8 +30,8 @@ public class CustomDebugHotkeysMixin {
     }
 
     @Inject(method = "handleDebugKeys", at = @At("HEAD"), cancellable = true)
-    public void toggleExperimentalPatches(KeyEvent keyEvent, CallbackInfoReturnable<Boolean> cir) {
-        if (keyEvent.key() == InputConstants.KEY_F) {
+    public void toggleExperimentalPatches(int i, CallbackInfoReturnable<Boolean> cir) {
+        if (i == InputConstants.KEY_F) {
             Minecraft.getInstance().setScreen(new RadarSettingsScreen(null));
             cir.setReturnValue(true);
         }

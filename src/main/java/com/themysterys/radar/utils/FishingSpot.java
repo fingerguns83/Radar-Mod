@@ -25,6 +25,7 @@ public class FishingSpot {
     }
 
     public String format() {
+        assert Minecraft.getInstance().player != null;
         UUID uuid = Minecraft.getInstance().player.getUUID();
         String username = Minecraft.getInstance().player.getName().getString();
         Boolean shareUser = Radar.getInstance().getConfig().shareUser;

@@ -48,7 +48,7 @@ public class Utils {
     );
 
     public static Style mccFont() {
-        return Style.EMPTY.withFont(new FontDescription.Resource(ResourceLocation.fromNamespaceAndPath("mcc","icon")));
+        return Style.EMPTY.withFont(ResourceLocation.fromNamespaceAndPath("mcc","icon"));
     }
 
     private static MutableComponent getPrefix() {
